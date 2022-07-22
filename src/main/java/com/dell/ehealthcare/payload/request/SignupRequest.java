@@ -1,5 +1,8 @@
 package com.dell.ehealthcare.payload.request;
 
+import com.dell.ehealthcare.model.Cart;
+
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 import javax.validation.constraints.*;
@@ -10,15 +13,38 @@ public class SignupRequest {
     private String username;
 
     @NotBlank
+    private String firstname;
+
+    @NotBlank
+    private String lastname;
+
+    @NotBlank
     @Size(max = 50)
     @Email
     private String email;
 
-    private Set<String> role;
-
     @NotBlank
     @Size(min = 6, max = 40)
     private String password;
+
+    @NotNull
+    private ZonedDateTime dob;
+
+    @NotBlank
+    private String phone;
+
+    @NotBlank
+    private String address;
+
+    @NotBlank
+    private String accountNum;
+
+    @NotNull
+    private Double funds;
+
+    private Set<String> role;
+
+    private Set<Cart> userCart;
 
     public String getUsername() {
         return username;
@@ -26,6 +52,22 @@ public class SignupRequest {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
 
     public String getEmail() {
@@ -44,11 +86,59 @@ public class SignupRequest {
         this.password = password;
     }
 
+    public ZonedDateTime getDob() {
+        return dob;
+    }
+
+    public void setDob(ZonedDateTime dob) {
+        this.dob = dob;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public Set<String> getRole() {
-        return this.role;
+        return role;
     }
 
     public void setRole(Set<String> role) {
         this.role = role;
+    }
+
+    public Set<Cart> getUserCart() {
+        return userCart;
+    }
+
+    public void setUserCart(Set<Cart> userCart) {
+        this.userCart = userCart;
+    }
+
+    public String getAccountNum() {
+        return accountNum;
+    }
+
+    public void setAccountNum(String accountNum) {
+        this.accountNum = accountNum;
+    }
+
+    public Double getFunds() {
+        return funds;
+    }
+
+    public void setFunds(Double funds) {
+        this.funds = funds;
     }
 }

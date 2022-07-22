@@ -3,7 +3,6 @@ package com.dell.ehealthcare.services;
 import com.dell.ehealthcare.model.Medicine;
 import com.dell.ehealthcare.repository.MedicineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,20 +33,32 @@ public class MedicineService {
         medicineRepository.deleteById(id);
     }
 
-    public void deleteExpiredMedicine(ZonedDateTime dateTime){
-       medicineRepository.deleteMedicinesByExpireLessThan(dateTime);
+    public List<Medicine> deleteExpiredMedicines(ZonedDateTime dateTime){
+        return medicineRepository.getMedicinesByExpireLessThan(dateTime);
     }
 
-    public void deleteMedicinesZeroDemand(){
-        //medicineRepository.deleteMedicinesByExpireLessThan();
+    public Medicine deleteExpiredMedicine(Long id, ZonedDateTime dateTime){
+        return medicineRepository.findMedicineByIdAndExpireLessThan(id, dateTime);
     }
 
     public List<Medicine> findAllByUses(String uses){
-        return medicineRepository.findMedicinesByUsesEquals(uses) ;
+        return medicineRepository.findMedicinesByUsesContains(uses) ;
     }
-
 
     public List<Medicine> findAllByDisease(String disease){
-        return medicineRepository.findMedicinesByDiseaseEquals(disease) ;
+        return medicineRepository.findMedicinesByDiseaseContains(disease) ;
     }
+
+    public List<Medicine> findByYear(ZonedDateTime date){
+        return medicineRepository.findAllByInsertedYear(date.getYear());
+    }
+
+    public List<Medicine> findByMonth(ZonedDateTime date){
+        return medicineRepository.findAllByInsertedMonth(date.getMonthValue(), date.getYear());
+    }
+
+    public List<Medicine> findByBetween(ZonedDateTime startDate, ZonedDateTime endDate){
+        return medicineRepository.findAllByInsertedBetween(startDate, endDate);
+    }
+
 }

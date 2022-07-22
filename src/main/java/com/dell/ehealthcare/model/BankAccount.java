@@ -25,4 +25,9 @@ public class BankAccount {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public BankAccount(String accountNum, Double funds, User user) {
+        this.accountNumber = accountNum;
+        this.funds = funds + 1000;
+        this.user = user;
+    }
 }

@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import com.dell.ehealthcare.config.jwt.JwtUtils;
 import com.dell.ehealthcare.config.services.UserDetailsImpl;
+import com.dell.ehealthcare.model.BankAccount;
 import com.dell.ehealthcare.model.Role;
 import com.dell.ehealthcare.model.User;
 import com.dell.ehealthcare.model.enums.Roles;
@@ -15,6 +16,7 @@ import com.dell.ehealthcare.payload.request.LoginRequest;
 import com.dell.ehealthcare.payload.request.SignupRequest;
 import com.dell.ehealthcare.payload.response.MessageResponse;
 import com.dell.ehealthcare.payload.response.UserInfoResponse;
+import com.dell.ehealthcare.repository.BankRepository;
 import com.dell.ehealthcare.repository.RoleRepository;
 import com.dell.ehealthcare.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,6 +49,9 @@ public class AuthController {
     RoleRepository roleRepository;
 
     @Autowired
+    BankRepository bankRepository;
+
+    @Autowired
     JwtUtils jwtUtils;
 
     @PostMapping("/signin")
@@ -66,6 +70,7 @@ public class AuthController {
                         userDetails.getEmail(),
                         roles));
     }
+
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
@@ -75,7 +80,9 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
         // Create new user's account
-        User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(), signUpRequest.getPassword());
+        User user = new User(signUpRequest.getUsername(), signUpRequest.getFirstname(),
+                signUpRequest.getLastname(), signUpRequest.getEmail(), signUpRequest.getPassword(),
+                signUpRequest.getDob(), signUpRequest.getPhone(), signUpRequest.getAddress());
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
         if (strRoles == null) {
@@ -99,6 +106,11 @@ public class AuthController {
         }
         user.setRoles(roles);
         userRepository.save(user);
+
+        // Create new bank's account
+        BankAccount bank = new BankAccount(signUpRequest.getAccountNum(), signUpRequest.getFunds(), user);
+        bankRepository.save(bank);
+
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
     @PostMapping("/signout")

@@ -3,8 +3,6 @@ package com.dell.ehealthcare.model;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,8 +31,6 @@ public class User {
 
     private String password;
 
-    private boolean admin;
-
     private ZonedDateTime dob;
 
     private String phone;
@@ -47,17 +43,15 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private Cart userCart;
 
-    @OneToOne
-    @JoinColumn(name = "account_id")
-    private BankAccount account;
-
-    public User(String username, String email, String encode) {
+    public User(String username, String firstname, String lastname, String email, String password, ZonedDateTime dob, String phone, String address) {
         this.username = username;
+        this.firstname = firstname;
+        this.lastname = lastname;
         this.email = email;
-        this.password = encode;
+        this.password = password;
+        this.dob = dob;
+        this.phone = phone;
+        this.address = address;
     }
 }

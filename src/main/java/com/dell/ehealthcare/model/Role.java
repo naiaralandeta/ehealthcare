@@ -24,3 +24,4 @@ public class Role {
     private Roles name;
 
 }
+

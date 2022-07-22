@@ -2,7 +2,6 @@ package com.dell.ehealthcare.controller;
 
 import com.dell.ehealthcare.exceptions.BankAccountNotfoundException;
 import com.dell.ehealthcare.exceptions.MedicineNotfoundException;
-import com.dell.ehealthcare.exceptions.OrderNotfoundException;
 import com.dell.ehealthcare.exceptions.UserNotfoundException;
 import com.dell.ehealthcare.model.*;
 import com.dell.ehealthcare.services.BankService;
@@ -24,6 +23,7 @@ import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("/api/user")
 public class UserController {
 
     @Autowired
@@ -38,13 +38,13 @@ public class UserController {
     @Autowired
     private CartService cartService;
 
-    @GetMapping("/api/user")
+    @GetMapping("/users")
     public List<User> retrieveAllUsers(){
         return userService.findAll();
     }
 
-    @GetMapping("api/user/{id}")
-    public Optional<User> retrieveUserData(@PathVariable Long id) throws UserNotfoundException {
+    @GetMapping("/data")
+    public Optional<User> retrieveUserData(@RequestParam("id") Long id) throws UserNotfoundException {
         Optional<User> user = userService.findOne(id);
 
         if(user == null){
@@ -53,7 +53,7 @@ public class UserController {
         return user;
     }
 
-    @PostMapping("api/user")
+    @PostMapping("/create")
     public ResponseEntity<Object> createUser(@Valid @RequestBody User user){
         User savedUser = userService.save(user);
 
@@ -62,13 +62,13 @@ public class UserController {
         return ResponseEntity.created(uri).build();
     }
 
-    @DeleteMapping("api/user/{id}")
-    public void deleteUser(@PathVariable Long id){
+    @DeleteMapping("/delete")
+    public void deleteUser(@RequestParam("id") Long id){
         userService.deleteById(id);
     }
 
-    @PutMapping("/api/user/{id}")
-    public ResponseEntity<Object> updateUserData(@PathVariable("id") Long id, @RequestBody User user){
+    @PutMapping("/update")
+    public ResponseEntity<Object> updateUserData(@RequestParam("id") Long id, @RequestBody User user){
         Optional<User> userData = userService.findOne(id);
 
         if(userData.isPresent()){
@@ -87,8 +87,8 @@ public class UserController {
         }
     }
 
-    @GetMapping("/api/user/uses/{uses}")
-    public List<Medicine> findMedicineByUses(@PathVariable("uses") String uses) throws MedicineNotfoundException{
+    @GetMapping("/uses")
+    public List<Medicine> findMedicineByUses(@RequestParam("uses") String uses) throws MedicineNotfoundException {
         List<Medicine> medicine = medicineService.findAllByUses(uses);
         if(medicine == null){
             throw new MedicineNotfoundException(String.format("Medicine with uses %s not found", uses));
@@ -96,8 +96,8 @@ public class UserController {
         return medicine;
     }
 
-    @GetMapping("/api/user/disease/{disease}")
-    public List<Medicine> findMedicineByDisease(@PathVariable("disease") String disease) throws MedicineNotfoundException{
+    @GetMapping("/disease")
+    public List<Medicine> findMedicineByDisease(@RequestParam("disease") String disease) throws MedicineNotfoundException {
         List<Medicine> medicine = medicineService.findAllByDisease(disease);
         if(medicine == null){
             throw new MedicineNotfoundException(String.format("Medicine with disease %s not found", disease));
@@ -105,16 +105,16 @@ public class UserController {
         return medicine;
     }
 
-    @GetMapping("/api/user/bank-account/{id}")
-    public Optional<BankAccount> retreiveBankAccountData(@PathVariable("id") Long id) throws BankAccountNotfoundException {
-        Optional<BankAccount> bankAccount = bankService.findOne(id);
+    @GetMapping("/bank-account")
+    public BankAccount retrieveBankAccountData(@RequestParam("id") Long userId) throws BankAccountNotfoundException {
+        BankAccount bankAccount = bankService.findByUserAccount(userId);
         if(bankAccount == null){
-            throw new BankAccountNotfoundException(String.format("Bank account with id %s not found", id));
+            throw new BankAccountNotfoundException(String.format("Bank account with id %s not found", userId));
         }
         return bankAccount;
     }
 
-    @PostMapping("/api/user/bank-account")
+    @PostMapping("/bank-account")
     public ResponseEntity<Object> createBankAccount(@Valid @RequestBody BankAccount bankAccount){
         BankAccount savedBankAccount = bankService.save(bankAccount);
 
@@ -123,9 +123,9 @@ public class UserController {
         return ResponseEntity.created(uri).build();
     }
 
-    @PutMapping("/api/user/bank-account")
-    public ResponseEntity<Object> updateBankAccountAmount(@Param("account") String account, @Param("funds") Double funds){
-        BankAccount bankAccountData = bankService.findByAccountNumber(account);
+    @PutMapping("/bank-account")
+    public ResponseEntity<Object> updateBankAccountAmount(@RequestParam("id") Long id, @RequestParam("account") String account,  @Param("funds") Double funds){
+        BankAccount bankAccountData = bankService.findByUserAndAccount(id, account);
 
         if(bankAccountData != null){
             bankAccountData.setFunds(bankAccountData.getFunds() + funds);
@@ -135,36 +135,12 @@ public class UserController {
         }
     }
 
-    @PostMapping("/api/user/order")
-    public ResponseEntity<Object> createOrder(@RequestBody Cart cart){
-
-        Cart savedCart = cartService.save(cart);
-
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}").buildAndExpand(savedCart.getId()).toUri();
-
-        return ResponseEntity.created(uri).build();
-
-    }
-
-    @GetMapping("/api/user/order")
-    public ResponseEntity<List<Item>> retrieveAllOrders(@Param("id") Long id){
-
-        List<Cart> orders = cartService.findAll(id);
-
-        if(!orders.isEmpty()){
-            return new ResponseEntity(orders, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-    }
-
-    @PutMapping("/api/user/order/{id}")
-    public ResponseEntity<Object> updateOrderData(@PathVariable("id") Long id, @RequestBody Cart cart){
+    @PutMapping("/order")
+    public ResponseEntity<Object> updateOrderData(@RequestParam("id") Long id, @RequestBody Cart cart){
         Optional<Cart> cartData = cartService.findOne(id);
 
         if(cartData.isPresent()){
             Cart updatedCart = cartData.get();
-            //updatedCart.setQuantity(item.getQuantity());
 
             return new ResponseEntity<>(cartService.save(updatedCart), HttpStatus.OK);
         } else {
@@ -172,9 +148,33 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("api/user/order/{id}")
-    public void deleteCart(@PathVariable Long id){
+    @DeleteMapping("/order")
+    public void deleteCart(@RequestParam("id") Long id){
         cartService.deleteById(id);
+    }
+
+    @GetMapping("/funds")
+    public @ResponseBody Double retrieveFunds(@RequestParam("id") Long id) throws BankAccountNotfoundException {
+        BankAccount bank = bankService.findByUserAccount(id);
+
+        if(bank == null){
+            throw new BankAccountNotfoundException(String.format("Bank account not found"));
+        }
+        return bank.getFunds();
+    }
+
+    @PostMapping("/funds")
+    public ResponseEntity<Object> addFunds(@RequestParam("id") Long id, @RequestParam("funds") Double funds){
+        BankAccount bank = bankService.findByUserAccount(id);
+
+        if(bank == null){
+            throw new BankAccountNotfoundException(String.format("Bank account not found"));
+        }
+
+        bank.setFunds(bank.getFunds() + funds);
+
+        return new ResponseEntity<>(bankService.save(bank), HttpStatus.OK);
+
     }
 
 }
