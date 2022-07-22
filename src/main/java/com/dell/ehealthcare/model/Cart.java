@@ -1,10 +1,12 @@
 package com.dell.ehealthcare.model;
 
+import com.dell.ehealthcare.model.enums.OrderStatus;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @ToString
 @Getter
@@ -19,14 +21,29 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /*@OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
-    private ArrayList<Item> items;*/
-
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne
+    @JoinTable(name = "USER_CART",
+            joinColumns = @JoinColumn(name = "cart_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     private User user;
 
-    @Column(nullable = false)
-    private String status;
+    @OneToMany
+    private Set<Medicine> medicine = new HashSet<>();
+
+
+    private OrderStatus status;
+
+    private Double total;
+
+    private ZonedDateTime date;
+
+    public Cart(User user, Set<Medicine> medicine, OrderStatus status, double total, ZonedDateTime date) {
+        this.user = user;
+        this.medicine = medicine;
+        this.status = status;
+        this.total = total;
+        this.date = date;
+    }
 
 }
+

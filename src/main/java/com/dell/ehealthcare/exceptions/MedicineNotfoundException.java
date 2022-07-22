@@ -2,8 +2,7 @@ package com.dell.ehealthcare.exceptions;
 
 public class MedicineNotfoundException extends RuntimeException {
 
-    public MedicineNotfoundException() {
-    }
+    public MedicineNotfoundException() {}
 
     public MedicineNotfoundException(String message) {
         super(message);

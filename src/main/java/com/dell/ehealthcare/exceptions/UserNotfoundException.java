@@ -21,3 +21,4 @@ public class UserNotfoundException extends RuntimeException {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }
+

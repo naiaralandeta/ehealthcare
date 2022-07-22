@@ -1,5 +1,6 @@
 package com.dell.ehealthcare.model;
 
+import com.dell.ehealthcare.model.enums.ReportRange;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,6 +21,5 @@ public class Report {
 
     private String sales;
 
-    // Monthly, weekly and yearly
-    private String range;
+    private ReportRange range;
 }

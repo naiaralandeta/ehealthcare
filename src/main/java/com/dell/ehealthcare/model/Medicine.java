@@ -27,14 +27,11 @@ public class Medicine {
     @Column(nullable = false)
     private Double price;
 
-    @Column(nullable = false)
-    private Long quantity;
+    private Integer quantity;
 
-    // hacer esta columna ENUM
     @Column(nullable = false)
     private String uses;
 
-    // Hacer esta columna ENUM
     @Column(nullable = false)
     private String disease;
 
@@ -43,4 +40,6 @@ public class Medicine {
 
     private Integer discount;
 
+    @Column(nullable = false)
+    private ZonedDateTime inserted;
 }
