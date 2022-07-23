@@ -37,6 +37,11 @@ public class LoginController {
     @Autowired
     BankRepository bankRepository;
 
+    @GetMapping(value = "/")
+    public String index() {
+        return "login";
+    }
+
     @GetMapping("/login")
     ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
