@@ -27,7 +27,6 @@ import java.util.Set;
 @Controller
 @RequestMapping("/api")
 public class LoginController {
-
     @Autowired
     UserRepository userRepository;
 
@@ -42,7 +41,7 @@ public class LoginController {
         return "login";
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
 
@@ -53,13 +52,13 @@ public class LoginController {
         }
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     ResponseEntity<MessageResponse> logoutUser() {
         return ResponseEntity.ok(new MessageResponse("You've been logout!"));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<MessageResponse> registerUser(@RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
@@ -94,7 +93,7 @@ public class LoginController {
         userRepository.save(user);
 
         // Create new bank's account
-        BankAccount bank = new BankAccount(signUpRequest.getAccountNum(), signUpRequest.getFunds(), user);
+        BankAccount bank = new BankAccount(signUpRequest.getAccountNum(), signUpRequest.getFunds() + 1000, user);
         bankRepository.save(bank);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
