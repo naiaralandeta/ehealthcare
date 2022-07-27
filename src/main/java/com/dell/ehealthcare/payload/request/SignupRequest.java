@@ -1,8 +1,14 @@
 package com.dell.ehealthcare.payload.request;
 
 import com.dell.ehealthcare.model.Cart;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Set;
 
 import javax.validation.constraints.*;
@@ -19,16 +25,14 @@ public class SignupRequest {
     private String lastname;
 
     @NotBlank
-    @Size(max = 50)
     @Email
     private String email;
 
     @NotBlank
-    @Size(min = 6, max = 40)
     private String password;
 
     @NotNull
-    private ZonedDateTime dob;
+    private Date dob;
 
     @NotBlank
     private String phone;
@@ -86,11 +90,11 @@ public class SignupRequest {
         this.password = password;
     }
 
-    public ZonedDateTime getDob() {
+    public Date getDob() {
         return dob;
     }
 
-    public void setDob(ZonedDateTime dob) {
+    public void setDob(Date dob) {
         this.dob = dob;
     }
 

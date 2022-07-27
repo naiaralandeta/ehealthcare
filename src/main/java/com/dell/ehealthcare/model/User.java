@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ public class User {
 
     private String password;
 
-    private ZonedDateTime dob;
+    private Date dob;
 
     private String phone;
 
@@ -44,7 +45,7 @@ public class User {
     private Set<Role> roles = new HashSet<>();
 
 
-    public User(String username, String firstname, String lastname, String email, String password, ZonedDateTime dob, String phone, String address) {
+    public User(String username, String firstname, String lastname, String email, String password, Date dob, String phone, String address) {
         this.username = username;
         this.firstname = firstname;
         this.lastname = lastname;
