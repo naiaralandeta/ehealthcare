@@ -122,7 +122,7 @@ public class CartController {
             carts.forEach(cart -> orders.add(new OrderDTO(cart.getMedicine(), cart.getStatus())));
             return new ResponseEntity<>(orders, HttpStatus.OK);
         } else {
-            throw new UserNotfoundException(String.format("User with ID %s not found", userId));
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
     }
 }
