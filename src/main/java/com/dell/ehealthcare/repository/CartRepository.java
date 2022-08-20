@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
-    List<Cart> getCartsByUserId(Long id);
+    List<Cart> getCartsByOwner(Long id);
 
     Cart getAllById(Long id);
 

@@ -1,7 +1,6 @@
 package com.dell.ehealthcare.controller;
 
 
-import com.dell.ehealthcare.dto.OrderDTO;
 import com.dell.ehealthcare.exceptions.UserNotfoundException;
 import com.dell.ehealthcare.model.BankAccount;
 import com.dell.ehealthcare.model.Cart;
@@ -39,15 +38,26 @@ public class CartController {
     private BankService bankService;
 
     @PostMapping("/cart")
-    public ResponseEntity<Object> addMedicine(@RequestParam("id") Long id, @RequestBody Set<Medicine> medicine){
+    public ResponseEntity<Object> addMedicine(@RequestParam("id") Long id, @RequestParam("cart") Long cartid, @RequestBody Set<Medicine> medicine){
         Optional<User> user = userService.findOne(id);
+        Optional<Cart> savedCart = cartService.findOne(cartid);
+
         if(user.isPresent()) {
-            Cart cart = new Cart(user.get(), medicine, OrderStatus.ORDERED,0.0, ZonedDateTime.now());
-            for (Medicine med: medicine) {
-                cart.setTotal(cart.getTotal() + ((med.getPrice() * med.getQuantity()) - (med.getPrice() * med.getQuantity() * med.getDiscount()) / 100));
+            if(savedCart.isPresent()){
+                savedCart.get().setMedicine(medicine);
+                for (Medicine med: medicine) {
+                    savedCart.get().setTotal(savedCart.get().getTotal() + ((med.getPrice() * med.getQuantity()) - (med.getPrice() * med.getQuantity() * med.getDiscount()) / 100));
+                }
+                cartService.save(savedCart.get());
+                return new ResponseEntity<>(savedCart.get(), HttpStatus.OK);
+            } else {
+                Cart cart = new Cart(id, medicine, OrderStatus.ORDERED,0.0, ZonedDateTime.now());
+                for (Medicine med: medicine) {
+                    cart.setTotal(cart.getTotal() + ((med.getPrice() * med.getQuantity()) - (med.getPrice() * med.getQuantity() * med.getDiscount()) / 100));
+                }
+                Cart cartsaved = cartService.save(cart);
+                return new ResponseEntity<>(cartsaved, HttpStatus.OK);
             }
-            cartService.save(cart);
-            return new ResponseEntity<>(cartService.save(cart), HttpStatus.OK);
         } else {
             throw new UserNotfoundException(String.format("User with ID %s not found", id));
         }
