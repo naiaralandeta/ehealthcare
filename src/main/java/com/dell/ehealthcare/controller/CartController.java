@@ -118,9 +118,7 @@ public class CartController {
     public ResponseEntity<?> getAllOrders(@RequestParam("userId") Long userId){
         List<Cart> carts = cartService.getAllOrders(userId);
         if(!carts.isEmpty()){
-            Set<OrderDTO> orders = new HashSet<>();
-            carts.forEach(cart -> orders.add(new OrderDTO(cart.getMedicine(), cart.getStatus())));
-            return new ResponseEntity<>(orders, HttpStatus.OK);
+            return new ResponseEntity<>(carts, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
