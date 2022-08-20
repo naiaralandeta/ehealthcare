@@ -45,5 +45,53 @@ public class Cart {
         this.date = date;
     }
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Set<Medicine> getMedicine() {
+		return medicine;
+	}
+
+	public void setMedicine(Set<Medicine> medicine) {
+		this.medicine = medicine;
+	}
+
+	public OrderStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(OrderStatus status) {
+		this.status = status;
+	}
+
+	public Double getTotal() {
+		return total;
+	}
+
+	public void setTotal(Double total) {
+		this.total = total;
+	}
+
+	public ZonedDateTime getDate() {
+		return date;
+	}
+
+	public void setDate(ZonedDateTime date) {
+		this.date = date;
+	}
+
 }
 

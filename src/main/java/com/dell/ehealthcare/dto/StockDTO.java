@@ -3,6 +3,7 @@ package com.dell.ehealthcare.dto;
 import java.io.Serializable;
 
 public class StockDTO implements Serializable {
+	
     private Long reference;
     private String name;
     private Integer quantity;

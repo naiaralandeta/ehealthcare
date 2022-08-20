@@ -58,7 +58,7 @@ public class LoginController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<MessageResponse> registerUser(@RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
@@ -93,10 +93,16 @@ public class LoginController {
         userRepository.save(user);
 
         // Create new bank's account
-        BankAccount bank = new BankAccount(signUpRequest.getAccountNum(), signUpRequest.getFunds() + 1000, user);
+        BankAccount bank = new BankAccount(signUpRequest.getAccountNum(), 1000.0, user);
         bankRepository.save(bank);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        Optional<User> savedUser = userRepository.findByUsername(signUpRequest.getUsername());
+
+        if(savedUser.isPresent() && savedUser.get().getPassword().equals(signUpRequest.getPassword())){
+            return ResponseEntity.ok(savedUser.get());
+        } else {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
+        }
     }
 
 }
