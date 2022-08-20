@@ -5,7 +5,9 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @ToString
@@ -21,15 +23,10 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinTable(name = "USER_CART",
-            joinColumns = @JoinColumn(name = "cart_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private User user;
+    private Long owner;
 
     @OneToMany
     private Set<Medicine> medicine = new HashSet<>();
-
 
     private OrderStatus status;
 
@@ -37,8 +34,8 @@ public class Cart {
 
     private ZonedDateTime date;
 
-    public Cart(User user, Set<Medicine> medicine, OrderStatus status, double total, ZonedDateTime date) {
-        this.user = user;
+    public Cart(Long user, Set<Medicine> medicine, OrderStatus status, double total, ZonedDateTime date) {
+        this.owner = user;
         this.medicine = medicine;
         this.status = status;
         this.total = total;
@@ -53,12 +50,12 @@ public class Cart {
 		this.id = id;
 	}
 
-	public User getUser() {
-		return user;
+	public Long getOwner() {
+		return owner;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setOwner(Long user) {
+		this.owner = user;
 	}
 
 	public Set<Medicine> getMedicine() {

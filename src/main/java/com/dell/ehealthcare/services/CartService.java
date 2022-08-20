@@ -26,7 +26,7 @@ public class CartService {
     }
 
     public List<Cart> getAllOrders(Long id){
-        return cartRepository.getCartsByUserId(id);
+        return cartRepository.getCartsByOwner(id);
     }
 
     public Cart getAllMedicines(Long id){

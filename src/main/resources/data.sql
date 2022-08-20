@@ -116,13 +116,9 @@ VALUES (1, 'Ibuprofen', 'Moderna', 4.50, 30, 'reduce fever and to relieve minor 
 DROP TABLE IF EXISTS CART;
 CREATE TABLE CART (
                       id LONG NOT NULL AUTO_INCREMENT,
+                      owner LONG,
                       total DOUBLE,
                       date TIMESTAMP,
                       PRIMARY KEY (id)
 );
 
-INSERT INTO CART(total, date)
-VALUES ( 11.55, '2022-07-16'),
-       ( 16, '2021-07-01'),
-       ( 9, '2022-05-16')
-;
