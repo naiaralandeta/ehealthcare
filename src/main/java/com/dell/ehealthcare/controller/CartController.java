@@ -42,8 +42,11 @@ public class CartController {
         Optional<User> user = userService.findOne(cart.getOwner());
 
         if(user.isPresent()) {
-            Cart newCart = new Cart(cart.getOwner(), cart.getMedname(), cart.getQuantity(), OrderStatus.ORDERED, cart.getTotal(), ZonedDateTime.now(), cart.getPrice(), cart.getDiscount());
-            newCart.setTotal(newCart.getTotal() + ((newCart.getPrice() * newCart.getQuantity()) - (newCart.getPrice() * newCart.getQuantity() * newCart.getDiscount()) / 100));
+            Cart newCart = new Cart(cart.getOwner(), cart.getMedname(), cart.getQuantity(), OrderStatus.PENDING, cart.getTotal(), ZonedDateTime.now(), cart.getPrice(), cart.getDiscount());
+
+            Double total = newCart.getTotal() + ((newCart.getPrice() * newCart.getQuantity()) - (newCart.getPrice() * newCart.getQuantity() * newCart.getDiscount()) / 100);
+            newCart.setTotal((double) Math.round(total * 100.0) / 100.0);
+
             Cart savedCart = cartService.save(newCart);
             return new ResponseEntity<>(savedCart, HttpStatus.OK);
         } else {
@@ -62,16 +65,13 @@ public class CartController {
     }
 
     @PutMapping("/cart")
-    public ResponseEntity<Object> updateQuantity(@RequestParam("cartId") Long cartId, @RequestParam("medicineId") Long medicineId, @RequestParam("quantity") Integer quantity){
+    public ResponseEntity<Object> updateQuantity(@RequestParam("cartId") Long cartId, @RequestParam("quantity") Integer quantity){
         Optional<Cart> cart = cartService.findOne(cartId);
         if(cart.isPresent()){
+            cart.get().setQuantity(quantity);
             cart.get().setTotal(0.0);
-           /* for (Medicine medicine: cart.get().getMedicine()) {
-                if(medicine.getId() == medicineId){
-                    medicine.setQuantity(quantity);
-                }
-                cart.get().setTotal(cart.get().getTotal() + ((medicine.getPrice() * medicine.getQuantity()) - (medicine.getPrice() * medicine.getQuantity() * medicine.getDiscount()) / 100));
-            }*/
+            Double total = cart.get().getTotal() + ((cart.get().getPrice() * quantity) - (cart.get().getPrice() * quantity * cart.get().getDiscount()) / 100);
+            cart.get().setTotal((double) Math.round(total * 100.0) / 100.0);
             return new ResponseEntity<>(cartService.save(cart.get()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -79,30 +79,30 @@ public class CartController {
     }
 
     @DeleteMapping("/cart")
-    public ResponseEntity<Object>  deleteMedicine(@RequestParam("cartId") Long id, @RequestParam("medicineId") Long medicineId){
+    public ResponseEntity<Object>  deleteMedicine(@RequestParam("cartId") Long id){
         Optional<Cart> cart = cartService.findOne(id);
         if(cart.isPresent()){
-            cart.get().setTotal(0.0);
-            /*for (Medicine medicine: cart.get().getMedicine()) {
-                if(medicine.getId() == medicineId){
-                    cart.get().getMedicine().remove(medicine);
-                } else {
-                    cart.get().setTotal(cart.get().getTotal() + ((medicine.getPrice() * medicine.getQuantity()) - (medicine.getPrice() * medicine.getQuantity() * medicine.getDiscount()) / 100));
-                }
-            }*/
-            return new ResponseEntity<>(cartService.save(cart.get()), HttpStatus.OK);
+            cartService.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkoutCart(@RequestParam("userId") Long userId, @RequestParam("total") Double total){
+    public ResponseEntity<?> checkoutCart(@RequestParam("userId") Long userId, @RequestParam("total") Double total, @RequestBody Set<Cart> orders){
         BankAccount account = bankService.findByUserAccount(userId);
         if(account != null){
             if(account.getFunds() >= total){
                 account.setFunds(account.getFunds() - total);
                 bankService.save(account);
+                for(Cart order: orders){
+                    Optional<Cart> cart = cartService.findOne(order.getId());
+                    if(cart.isPresent()){
+                        cart.get().setStatus(OrderStatus.ORDERED);
+                        cartService.save(cart.get());
+                    }
+                }
                 return ResponseEntity.ok(new MessageResponse("Payment successfully!"));
             } else {
                 return ResponseEntity.badRequest().body(new MessageResponse("Insufficient amount!"));
@@ -114,7 +114,17 @@ public class CartController {
 
     @GetMapping("/orders")
     public ResponseEntity<?> getAllOrders(@RequestParam("userId") Long userId){
-        List<Cart> carts = cartService.getAllOrders(userId);
+        List<Cart> carts = cartService.getAllOrders(userId, OrderStatus.PENDING);
+        if(!carts.isEmpty()){
+            return new ResponseEntity<>(carts, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+    }
+
+    @GetMapping("/pending-orders")
+    public ResponseEntity<?> getAllPendingOrders(@RequestParam("userId") Long userId){
+        List<Cart> carts = cartService.getAllPendingOrders(userId, OrderStatus.PENDING);
         if(!carts.isEmpty()){
             return new ResponseEntity<>(carts, HttpStatus.OK);
         } else {

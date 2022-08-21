@@ -14,6 +14,7 @@ CREATE TABLE ORDER_STATUS (
                               PRIMARY KEY (id)
 );
 
+INSERT INTO ORDER_STATUS(status) VALUES('PENDING');
 INSERT INTO ORDER_STATUS(status) VALUES('ORDERED');
 INSERT INTO ORDER_STATUS(status) VALUES('DISPATCHING');
 INSERT INTO ORDER_STATUS(status) VALUES('SHIPPED');
@@ -117,8 +118,17 @@ DROP TABLE IF EXISTS CART;
 CREATE TABLE CART (
                       id LONG NOT NULL AUTO_INCREMENT,
                       owner LONG,
+                      medname VARCHAR,
+                      quantity INT,
+                      price DOUBLE,
+                      discount INT,
+                      status VARCHAR(128),
                       total DOUBLE,
                       date TIMESTAMP,
                       PRIMARY KEY (id)
 );
 
+INSERT INTO CART (owner, medname, quantity, price, discount, status, total, date)
+VALUES (3, 'Ibuprofen',4, 30, 0, 1, 10, '2021-07-16'),
+       (3, 'Pandol', 3, 3.15, 10, 0, 8.5, '2021-07-16')
+;

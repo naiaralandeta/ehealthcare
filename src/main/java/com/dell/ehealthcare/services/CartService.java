@@ -1,6 +1,7 @@
 package com.dell.ehealthcare.services;
 
 import com.dell.ehealthcare.model.Cart;
+import com.dell.ehealthcare.model.enums.OrderStatus;
 import com.dell.ehealthcare.repository.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,12 @@ public class CartService {
         return cartRepository.findById(id);
     }
 
-    public List<Cart> getAllOrders(Long id){
-        return cartRepository.getCartsByOwner(id);
+    public List<Cart> getAllOrders(Long id, OrderStatus orderStatus){
+        return cartRepository.getCartsByOwnerAndStatusNot(id, orderStatus);
+    }
+
+    public List<Cart> getAllPendingOrders(Long id, OrderStatus orderStatus){
+        return cartRepository.getCartsByOwnerAndStatus(id, orderStatus);
     }
 
     public List<Cart> getAllMedicines(Long id){

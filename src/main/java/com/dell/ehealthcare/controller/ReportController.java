@@ -4,6 +4,7 @@ import com.dell.ehealthcare.dto.StockDTO;
 import com.dell.ehealthcare.exceptions.UserNotfoundException;
 import com.dell.ehealthcare.model.Cart;
 import com.dell.ehealthcare.model.Medicine;
+import com.dell.ehealthcare.model.enums.OrderStatus;
 import com.dell.ehealthcare.model.enums.ReportRange;
 import com.dell.ehealthcare.payload.response.MessageResponse;
 import com.dell.ehealthcare.services.CartService;
@@ -91,7 +92,7 @@ public class ReportController {
 
     @GetMapping("/user-report")
     public ResponseEntity<?> getUsersReport(@RequestParam("userId") Long id){
-        List<Cart> orders = cartService.getAllOrders(id);
+        List<Cart> orders = cartService.getAllOrders(id, OrderStatus.PENDING);
 
         if(orders.isEmpty()){
             throw new UserNotfoundException();
