@@ -28,9 +28,7 @@ public class Cart {
     private OrderStatus status;
     private Double total;
     private ZonedDateTime date;
-
 	private Double price;
-
 	private Integer discount;
 
     public Cart(Long user, String medicine, Integer quantity, OrderStatus status, double total, ZonedDateTime date, Double price, Integer discount) {
