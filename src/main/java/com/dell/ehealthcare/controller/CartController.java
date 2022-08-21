@@ -38,36 +38,24 @@ public class CartController {
     private BankService bankService;
 
     @PostMapping("/cart")
-    public ResponseEntity<Object> addMedicine(@RequestParam("id") Long id, @RequestParam("cart") Long cartid, @RequestBody Set<Medicine> medicine){
-        Optional<User> user = userService.findOne(id);
-        Optional<Cart> savedCart = cartService.findOne(cartid);
+    public ResponseEntity<Object> addMedicine(@RequestBody Cart cart){
+        Optional<User> user = userService.findOne(cart.getOwner());
 
         if(user.isPresent()) {
-            if(savedCart.isPresent()){
-                savedCart.get().setMedicine(medicine);
-                for (Medicine med: medicine) {
-                    savedCart.get().setTotal(savedCart.get().getTotal() + ((med.getPrice() * med.getQuantity()) - (med.getPrice() * med.getQuantity() * med.getDiscount()) / 100));
-                }
-                cartService.save(savedCart.get());
-                return new ResponseEntity<>(savedCart.get(), HttpStatus.OK);
-            } else {
-                Cart cart = new Cart(id, medicine, OrderStatus.ORDERED,0.0, ZonedDateTime.now());
-                for (Medicine med: medicine) {
-                    cart.setTotal(cart.getTotal() + ((med.getPrice() * med.getQuantity()) - (med.getPrice() * med.getQuantity() * med.getDiscount()) / 100));
-                }
-                Cart cartsaved = cartService.save(cart);
-                return new ResponseEntity<>(cartsaved, HttpStatus.OK);
-            }
+            Cart newCart = new Cart(cart.getOwner(), cart.getMedname(), cart.getQuantity(), OrderStatus.ORDERED, cart.getTotal(), ZonedDateTime.now(), cart.getPrice(), cart.getDiscount());
+            newCart.setTotal(newCart.getTotal() + ((newCart.getPrice() * newCart.getQuantity()) - (newCart.getPrice() * newCart.getQuantity() * newCart.getDiscount()) / 100));
+            Cart savedCart = cartService.save(newCart);
+            return new ResponseEntity<>(savedCart, HttpStatus.OK);
         } else {
-            throw new UserNotfoundException(String.format("User with ID %s not found", id));
+            throw new UserNotfoundException(String.format("User with ID %s not found", cart.getOwner()));
         }
     }
 
     @GetMapping("/cart")
-    public ResponseEntity<Set<Medicine>> retrieveMedicines(@RequestParam Long id){
-        Cart cart = cartService.getAllMedicines(id);
-        if(cart != null){
-            return new ResponseEntity<>(cart.getMedicine(), HttpStatus.OK);
+    public ResponseEntity<List<Cart>> retrieveMedicines(@RequestParam Long id){
+        List<Cart> carts = cartService.getAllMedicines(id);
+        if(carts != null){
+            return new ResponseEntity<>(carts, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -78,12 +66,12 @@ public class CartController {
         Optional<Cart> cart = cartService.findOne(cartId);
         if(cart.isPresent()){
             cart.get().setTotal(0.0);
-            for (Medicine medicine: cart.get().getMedicine()) {
+           /* for (Medicine medicine: cart.get().getMedicine()) {
                 if(medicine.getId() == medicineId){
                     medicine.setQuantity(quantity);
                 }
                 cart.get().setTotal(cart.get().getTotal() + ((medicine.getPrice() * medicine.getQuantity()) - (medicine.getPrice() * medicine.getQuantity() * medicine.getDiscount()) / 100));
-            }
+            }*/
             return new ResponseEntity<>(cartService.save(cart.get()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -95,13 +83,13 @@ public class CartController {
         Optional<Cart> cart = cartService.findOne(id);
         if(cart.isPresent()){
             cart.get().setTotal(0.0);
-            for (Medicine medicine: cart.get().getMedicine()) {
+            /*for (Medicine medicine: cart.get().getMedicine()) {
                 if(medicine.getId() == medicineId){
                     cart.get().getMedicine().remove(medicine);
                 } else {
                     cart.get().setTotal(cart.get().getTotal() + ((medicine.getPrice() * medicine.getQuantity()) - (medicine.getPrice() * medicine.getQuantity() * medicine.getDiscount()) / 100));
                 }
-            }
+            }*/
             return new ResponseEntity<>(cartService.save(cart.get()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

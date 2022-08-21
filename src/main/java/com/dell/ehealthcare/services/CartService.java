@@ -29,7 +29,7 @@ public class CartService {
         return cartRepository.getCartsByOwner(id);
     }
 
-    public Cart getAllMedicines(Long id){
+    public List<Cart> getAllMedicines(Long id){
         return cartRepository.getAllById(id);
     }
 

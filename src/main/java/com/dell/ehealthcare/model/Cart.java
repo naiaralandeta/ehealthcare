@@ -22,24 +22,26 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long owner;
-
-    @OneToMany
-    private Set<Medicine> medicine = new HashSet<>();
-
+    private String medname;
+	private Integer quantity;
     private OrderStatus status;
-
     private Double total;
-
     private ZonedDateTime date;
 
-    public Cart(Long user, Set<Medicine> medicine, OrderStatus status, double total, ZonedDateTime date) {
+	private Double price;
+
+	private Integer discount;
+
+    public Cart(Long user, String medicine, Integer quantity, OrderStatus status, double total, ZonedDateTime date, Double price, Integer discount) {
         this.owner = user;
-        this.medicine = medicine;
+        this.medname = medicine;
+		this.quantity = quantity;
         this.status = status;
         this.total = total;
         this.date = date;
+		this.price = price;
+		this.discount = discount;
     }
 
 	public Long getId() {
@@ -58,12 +60,20 @@ public class Cart {
 		this.owner = user;
 	}
 
-	public Set<Medicine> getMedicine() {
-		return medicine;
+	public String getMedname() {
+		return medname;
 	}
 
-	public void setMedicine(Set<Medicine> medicine) {
-		this.medicine = medicine;
+	public void setMedname(String medname) {
+		this.medname = medname;
+	}
+
+	public Integer getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
 	}
 
 	public OrderStatus getStatus() {
@@ -90,5 +100,20 @@ public class Cart {
 		this.date = date;
 	}
 
+	public Double getPrice() {
+		return price;
+	}
+
+	public void setPrice(Double price) {
+		this.price = price;
+	}
+
+	public Integer getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(Integer discount) {
+		this.discount = discount;
+	}
 }
 
