@@ -14,7 +14,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     List<Cart> getCartsByOwner(Long id);
 
-    Cart getAllById(Long id);
+    List<Cart> getAllById(Long id);
 
     @Query(value = "select * from Cart as c JOIN user_cart u ON u.cart_id = c.id where year(c.date) = :year and month(c.date) = :month ", nativeQuery = true)
     List<Cart> findAllByDateMonth(@Param("month") Integer month, @Param("year") Integer year);
