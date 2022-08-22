@@ -99,7 +99,7 @@ public class LoginController {
         Optional<User> savedUser = userRepository.findByUsername(signUpRequest.getUsername());
 
         if(savedUser.isPresent() && savedUser.get().getPassword().equals(signUpRequest.getPassword())){
-            return ResponseEntity.ok(savedUser.get());
+            return ResponseEntity.ok(savedUser.get().getId());
         } else {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: User not found!"));
         }
