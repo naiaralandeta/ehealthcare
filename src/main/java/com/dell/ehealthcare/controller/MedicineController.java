@@ -49,6 +49,7 @@ public class MedicineController {
 
     @PostMapping("/create")
     public ResponseEntity<Object> createMedicine(@RequestBody Medicine medicine){
+        medicine.setInserted(ZonedDateTime.now());
         Medicine savedMedicine = medicineService.save(medicine);
 
         if(savedMedicine == null){
@@ -75,7 +76,7 @@ public class MedicineController {
                 medicineService.deleteById(medicine.getId());
                 medicineHistoryService.deleteByMedicineId(medicine.getId());
             }
-            return ResponseEntity.ok("Medicines removed");
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -116,12 +117,14 @@ public class MedicineController {
         if(medicineData.isPresent()){
             Medicine updatedMedicine = medicineData.get();
             updatedMedicine.setPrice(medicine.getPrice());
-            updatedMedicine.setQuantity(medicineData.get().getQuantity() + medicine.getQuantity());
+            updatedMedicine.setQuantity(medicine.getQuantity());
             updatedMedicine.setCompany(medicine.getCompany());
+            updatedMedicine.setDiscount(medicine.getDiscount());
 
             mHistory.setPrice(medicine.getPrice());
-            mHistory.setQuantity(medicineData.get().getQuantity() + medicine.getQuantity());
+            mHistory.setQuantity(medicine.getQuantity());
             mHistory.setCompany(medicine.getCompany());
+            mHistory.setDiscount(medicine.getDiscount());
 
             medicineHistoryService.saveMedicineHistory(mHistory);
 
