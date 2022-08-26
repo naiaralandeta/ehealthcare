@@ -71,7 +71,9 @@ public class UserController {
     public ResponseEntity<Object> updateUserData(@RequestParam("id") Long id, @RequestBody User user){
         Optional<User> userData = userService.findOne(id);
 
-        if(userData.isPresent()){
+        if(userData.isPresent() & (user.getFirstname() != null & user.getFirstname() != "") & (user.getLastname() != null & user.getLastname() != "") &
+                (user.getPassword() != null & user.getPassword() != "" & (user.getPhone() != null & user.getPhone() != "")
+                        & (user.getAddress() != null & user.getAddress() != "") & user.getDob() != null )){
             User updatedUser = userData.get();
             updatedUser.setPassword(user.getPassword());
             updatedUser.setAddress(user.getAddress());
@@ -81,7 +83,8 @@ public class UserController {
             updatedUser.setFirstname(user.getFirstname());
             updatedUser.setLastname(user.getLastname());
 
-            return new ResponseEntity<>(userService.save(updatedUser), HttpStatus.OK);
+            User usersaved = userService.save(updatedUser);
+            return new ResponseEntity<>(usersaved, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

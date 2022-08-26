@@ -28,4 +28,6 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long> {
 
     List<Medicine> findAllByInsertedBetween(ZonedDateTime start, ZonedDateTime end);
 
+    Boolean existsByName(String medicine);
+
 }

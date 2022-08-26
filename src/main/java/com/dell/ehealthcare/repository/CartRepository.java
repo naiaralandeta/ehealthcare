@@ -27,4 +27,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     List<Cart> findAllByDateBetween(ZonedDateTime start, ZonedDateTime end);
 
+    Boolean existsByMednameAndStatus(String name, OrderStatus order);
+
 }
