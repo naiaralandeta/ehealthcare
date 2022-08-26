@@ -53,4 +53,8 @@ public class CartService {
     public List<Cart> findByBetween(ZonedDateTime startDate, ZonedDateTime endDate){
         return cartRepository.findAllByDateBetween(startDate, endDate);
     }
+
+    public Boolean existsByMednameAndStatus(String name, OrderStatus order){
+        return cartRepository.existsByMednameAndStatus(name, order);
+    }
 }

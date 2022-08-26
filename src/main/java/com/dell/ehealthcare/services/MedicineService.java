@@ -61,4 +61,8 @@ public class MedicineService {
         return medicineRepository.findAllByInsertedBetween(startDate, endDate);
     }
 
+    public Boolean existsByName(String medicine){
+        return medicineRepository.existsByName(medicine);
+    }
+
 }
