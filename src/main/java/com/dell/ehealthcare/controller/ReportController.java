@@ -1,16 +1,14 @@
 package com.dell.ehealthcare.controller;
 
 import com.dell.ehealthcare.dto.StockDTO;
-import com.dell.ehealthcare.exceptions.UserNotfoundException;
 import com.dell.ehealthcare.model.Cart;
 import com.dell.ehealthcare.model.Medicine;
-import com.dell.ehealthcare.model.enums.OrderStatus;
-import com.dell.ehealthcare.model.enums.ReportRange;
+import com.dell.ehealthcare.model.enums.*;
 import com.dell.ehealthcare.payload.response.MessageResponse;
 import com.dell.ehealthcare.services.CartService;
 import com.dell.ehealthcare.services.MedicineService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,63 +24,105 @@ import java.util.List;
 @RequestMapping("/api/admin")
 public class ReportController {
 
-    @Autowired
     private MedicineService medicineService;
 
-    @Autowired
     private CartService cartService;
 
     @GetMapping("/report")
-    public ResponseEntity<?> getReport(@RequestParam("type") String reportType, @RequestParam("range") Integer range, @RequestParam("date") ZonedDateTime start){
+    public ResponseEntity<?> getReport(@RequestParam("type") Integer type, @RequestParam("range") Integer range, @RequestParam("date") ZonedDateTime start){
 
-        ReportRange rangeType = ReportRange.values()[range];
-        switch (rangeType){
+        ReportRange reportrange = ReportRange.values()[range];
+        ReportType reportType = ReportType.values()[type];
+
+        switch (reportrange){
             case WEEKLY:
                 ZonedDateTime end = start.plusDays(7);
                 switch (reportType){
-                    case "STOCK":
-                        List<Medicine> medicines = medicineService.findByBetween(start, end);
+                    case STOCK:
+                        List<Medicine> meds = medicineService.findByBetween(start, end);
                         List<StockDTO> stock = new ArrayList<>();
-                        for (Medicine medicine: medicines) {
+                        for (Medicine medicine: meds) {
                             stock.add(new StockDTO(medicine.getId(), medicine.getName(), medicine.getQuantity()));
                         }
-                        return ResponseEntity.ok(stock);
-                    case "SALES":
-                        return ResponseEntity.ok(cartService.findByBetween(start, end));
-                    case "MEDICINE":
-                        return ResponseEntity.ok(medicineService.findByBetween(start, end));
+                        if(!stock.isEmpty()){
+                            return new ResponseEntity<>(stock, HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
+                    case SALES:
+                        List<Cart> carts = cartService.findByBetween(start, end);
+                        if(!carts.isEmpty()){
+                            return new ResponseEntity<>(carts, HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
+                    case MEDICINE:
+                        List<Medicine> medicines = medicineService.findByBetween(start, end);
+                        if(!medicines.isEmpty()){
+                            return new ResponseEntity<>(medicines, HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
                     default:
                         return ResponseEntity.badRequest().body(new MessageResponse("Error: Report couldn't process!"));
                 }
             case MONTHLY:
                 switch (reportType){
-                    case "STOCK":
-                        List<Medicine> medicines = medicineService.findByMonth(start);
+                    case STOCK:
+                        List<Medicine> meds = medicineService.findByMonth(start);
                         List<StockDTO> stock = new ArrayList<>();
-                        for (Medicine medicine: medicines) {
+                        for (Medicine medicine: meds) {
                             stock.add(new StockDTO(medicine.getId(), medicine.getName(), medicine.getQuantity()));
                         }
-                        return ResponseEntity.ok(stock);
-                    case "SALES":
-                        return ResponseEntity.ok(cartService.findByMonth(start));
-                    case "MEDICINE":
-                        return ResponseEntity.ok(medicineService.findByMonth(start));
+                        if(!stock.isEmpty()){
+                            return new ResponseEntity<>(stock, HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
+                    case SALES:
+                        List<Cart> carts = cartService.findByMonth(start);
+                        if(!carts.isEmpty()){
+                            return new ResponseEntity<>(carts, HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
+                    case MEDICINE:
+                        List<Medicine> medicines = medicineService.findByMonth(start);
+                        if(!medicines.isEmpty()){
+                            return new ResponseEntity<>(medicines, HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
                     default:
                         return ResponseEntity.badRequest().body(new MessageResponse("Error: Report couldn't process!"));
                 }
             case YEARLY:
                 switch (reportType){
-                    case "STOCK":
-                        List<Medicine> medicines = medicineService.findByYear(start);
+                    case STOCK:
+                        List<Medicine> meds = medicineService.findByYear(start);
                         List<StockDTO> stock = new ArrayList<>();
-                        for (Medicine medicine: medicines) {
+                        for (Medicine medicine: meds) {
                             stock.add(new StockDTO(medicine.getId(), medicine.getName(), medicine.getQuantity()));
                         }
-                        return ResponseEntity.ok(stock);
-                    case "SALES":
-                        return ResponseEntity.ok(cartService.findByYear(start));
-                    case "MEDICINE":
-                        return ResponseEntity.ok(medicineService.findByYear(start));
+                        if(!stock.isEmpty()){
+                            return new ResponseEntity<>(stock, HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
+                    case SALES:
+                        List<Cart> carts = cartService.findByYear(start);
+                        if(!carts.isEmpty()){
+                            return new ResponseEntity<>(carts, HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
+                    case MEDICINE:
+                        List<Medicine> medicines = medicineService.findByYear(start);
+                        if(!medicines.isEmpty()){
+                            return new ResponseEntity<>(medicines, HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
                     default:
                         return ResponseEntity.badRequest().body(new MessageResponse("Error: Report couldn't process!"));
                 }
@@ -94,10 +134,10 @@ public class ReportController {
     public ResponseEntity<?> getUsersReport(@RequestParam("userId") Long id){
         List<Cart> orders = cartService.getAllOrders(id, OrderStatus.PENDING);
 
-        if(orders.isEmpty()){
-            throw new UserNotfoundException();
+        if(!orders.isEmpty()){
+            return ResponseEntity.ok(orders);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
-        return ResponseEntity.ok(orders);
     }
 }
