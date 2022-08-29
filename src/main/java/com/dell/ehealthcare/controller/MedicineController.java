@@ -49,6 +49,14 @@ public class MedicineController {
 
     @PostMapping("/create")
     public ResponseEntity<Object> createMedicine(@RequestBody Medicine medicine){
+
+        boolean existMedicine = medicineService.existsByName(medicine.getName());
+
+        if( (medicine.getName() != null & medicine.getName() != "") & (medicine.getCompany() != null & medicine.getCompany() != "") &
+                medicine.getPrice() != null & medicine.getQuantity() != null  & (medicine.getUses() != null & medicine.getUses() != "") &
+                (medicine.getDisease() != null & medicine.getDisease() != "") & medicine.getExpire() != null & medicine.getDiscount() != null
+        & !existMedicine){
+        medicine.setInserted(ZonedDateTime.now());
         Medicine savedMedicine = medicineService.save(medicine);
 
         if(savedMedicine == null){
@@ -59,6 +67,9 @@ public class MedicineController {
                 savedMedicine.getQuantity(), savedMedicine.getUses(), savedMedicine.getDisease(), savedMedicine.getExpire(), savedMedicine.getDiscount()));
 
         return ResponseEntity.ok(savedMedicine);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
     }
 
     @DeleteMapping("/delete")
@@ -75,7 +86,7 @@ public class MedicineController {
                 medicineService.deleteById(medicine.getId());
                 medicineHistoryService.deleteByMedicineId(medicine.getId());
             }
-            return ResponseEntity.ok("Medicines removed");
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -110,24 +121,33 @@ public class MedicineController {
 
     @PutMapping("/update")
     public ResponseEntity<Object> updateMedicineData(@RequestParam("id") Long id, @RequestBody Medicine medicine){
-        Optional<Medicine> medicineData = medicineService.findOne(id);
-        MedicineHistory mHistory = medicineHistoryService.getMedicine(id);
 
-        if(medicineData.isPresent()){
-            Medicine updatedMedicine = medicineData.get();
-            updatedMedicine.setPrice(medicine.getPrice());
-            updatedMedicine.setQuantity(medicineData.get().getQuantity() + medicine.getQuantity());
-            updatedMedicine.setCompany(medicine.getCompany());
+        if( (medicine.getCompany() != null & medicine.getCompany() != "") &
+                medicine.getPrice() != null & medicine.getQuantity() != null & medicine.getDiscount() != null
+        ) {
+            Optional<Medicine> medicineData = medicineService.findOne(id);
+            MedicineHistory mHistory = medicineHistoryService.getMedicine(id);
 
-            mHistory.setPrice(medicine.getPrice());
-            mHistory.setQuantity(medicineData.get().getQuantity() + medicine.getQuantity());
-            mHistory.setCompany(medicine.getCompany());
+            if (medicineData.isPresent()) {
+                Medicine updatedMedicine = medicineData.get();
+                updatedMedicine.setPrice(medicine.getPrice());
+                updatedMedicine.setQuantity(medicine.getQuantity());
+                updatedMedicine.setCompany(medicine.getCompany());
+                updatedMedicine.setDiscount(medicine.getDiscount());
 
-            medicineHistoryService.saveMedicineHistory(mHistory);
+                mHistory.setPrice(medicine.getPrice());
+                mHistory.setQuantity(medicine.getQuantity());
+                mHistory.setCompany(medicine.getCompany());
+                mHistory.setDiscount(medicine.getDiscount());
 
-            return new ResponseEntity<>(medicineService.save(updatedMedicine), HttpStatus.OK);
+                medicineHistoryService.saveMedicineHistory(mHistory);
+
+                return new ResponseEntity<>(medicineService.save(updatedMedicine), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
     }
 

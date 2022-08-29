@@ -40,8 +40,9 @@ public class CartController {
     @PostMapping("/cart")
     public ResponseEntity<Object> addMedicine(@RequestBody Cart cart){
         Optional<User> user = userService.findOne(cart.getOwner());
+        Boolean existMedicine = cartService.existsByMednameAndStatus(cart.getMedname(), OrderStatus.PENDING);
 
-        if(user.isPresent()) {
+        if(user.isPresent() & !existMedicine) {
             Cart newCart = new Cart(cart.getOwner(), cart.getMedname(), cart.getQuantity(), OrderStatus.PENDING, cart.getTotal(), ZonedDateTime.now(), cart.getPrice(), cart.getDiscount());
 
             Double total = newCart.getTotal() + ((newCart.getPrice() * newCart.getQuantity()) - (newCart.getPrice() * newCart.getQuantity() * newCart.getDiscount()) / 100);
@@ -50,7 +51,7 @@ public class CartController {
             Cart savedCart = cartService.save(newCart);
             return new ResponseEntity<>(savedCart, HttpStatus.OK);
         } else {
-            throw new UserNotfoundException(String.format("User with ID %s not found", cart.getOwner()));
+            throw new UserNotfoundException(String.format("User with ID %s couldn't add a medicine", cart.getOwner()));
         }
     }
 
@@ -72,7 +73,8 @@ public class CartController {
             cart.get().setTotal(0.0);
             Double total = cart.get().getTotal() + ((cart.get().getPrice() * quantity) - (cart.get().getPrice() * quantity * cart.get().getDiscount()) / 100);
             cart.get().setTotal((double) Math.round(total * 100.0) / 100.0);
-            return new ResponseEntity<>(cartService.save(cart.get()), HttpStatus.OK);
+            cartService.save(cart.get());
+            return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

@@ -19,12 +19,14 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     List<Cart> getAllById(Long id);
 
-    @Query(value = "select * from Cart as c JOIN user_cart u ON u.cart_id = c.id where year(c.date) = :year and month(c.date) = :month ", nativeQuery = true)
+    @Query(value = "select * from Cart as c where year(c.date) = :year and month(c.date) = :month ", nativeQuery = true)
     List<Cart> findAllByDateMonth(@Param("month") Integer month, @Param("year") Integer year);
 
-    @Query(value = "select * from Cart as c JOIN user_cart u ON u.cart_id = c.id where year(c.date) = :year", nativeQuery = true)
+    @Query(value = "select * from Cart as c where year(c.date) = :year", nativeQuery = true)
     List<Cart> findAllByDateYear(@Param("year") Integer year);
 
     List<Cart> findAllByDateBetween(ZonedDateTime start, ZonedDateTime end);
+
+    Boolean existsByMednameAndStatus(String name, OrderStatus order);
 
 }
