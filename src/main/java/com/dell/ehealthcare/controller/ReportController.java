@@ -15,8 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -29,36 +34,38 @@ public class ReportController {
     private CartService cartService;
 
     @GetMapping("/report")
-    public ResponseEntity<?> getReport(@RequestParam("type") Integer type, @RequestParam("range") Integer range, @RequestParam("date") ZonedDateTime start){
+    public ResponseEntity<?> getReport(@RequestParam("type") Integer type, @RequestParam("range") Integer range ,
+         @RequestParam("date") String startdate) {
 
+        ZonedDateTime start = ZonedDateTime.now();
         ReportRange reportrange = ReportRange.values()[range];
         ReportType reportType = ReportType.values()[type];
 
-        switch (reportrange){
+        switch (reportrange) {
             case WEEKLY:
                 ZonedDateTime end = start.plusDays(7);
-                switch (reportType){
+                switch (reportType) {
                     case STOCK:
                         List<Medicine> meds = medicineService.findByBetween(start, end);
                         List<StockDTO> stock = new ArrayList<>();
-                        for (Medicine medicine: meds) {
+                        for (Medicine medicine : meds) {
                             stock.add(new StockDTO(medicine.getId(), medicine.getName(), medicine.getQuantity()));
                         }
-                        if(!stock.isEmpty()){
+                        if (!stock.isEmpty()) {
                             return new ResponseEntity<>(stock, HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                         }
                     case SALES:
                         List<Cart> carts = cartService.findByBetween(start, end);
-                        if(!carts.isEmpty()){
+                        if (!carts.isEmpty()) {
                             return new ResponseEntity<>(carts, HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                         }
                     case MEDICINE:
                         List<Medicine> medicines = medicineService.findByBetween(start, end);
-                        if(!medicines.isEmpty()){
+                        if (!medicines.isEmpty()) {
                             return new ResponseEntity<>(medicines, HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -67,28 +74,28 @@ public class ReportController {
                         return ResponseEntity.badRequest().body(new MessageResponse("Error: Report couldn't process!"));
                 }
             case MONTHLY:
-                switch (reportType){
+                switch (reportType) {
                     case STOCK:
                         List<Medicine> meds = medicineService.findByMonth(start);
                         List<StockDTO> stock = new ArrayList<>();
-                        for (Medicine medicine: meds) {
+                        for (Medicine medicine : meds) {
                             stock.add(new StockDTO(medicine.getId(), medicine.getName(), medicine.getQuantity()));
                         }
-                        if(!stock.isEmpty()){
+                        if (!stock.isEmpty()) {
                             return new ResponseEntity<>(stock, HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                         }
                     case SALES:
                         List<Cart> carts = cartService.findByMonth(start);
-                        if(!carts.isEmpty()){
+                        if (!carts.isEmpty()) {
                             return new ResponseEntity<>(carts, HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                         }
                     case MEDICINE:
                         List<Medicine> medicines = medicineService.findByMonth(start);
-                        if(!medicines.isEmpty()){
+                        if (!medicines.isEmpty()) {
                             return new ResponseEntity<>(medicines, HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -97,28 +104,28 @@ public class ReportController {
                         return ResponseEntity.badRequest().body(new MessageResponse("Error: Report couldn't process!"));
                 }
             case YEARLY:
-                switch (reportType){
+                switch (reportType) {
                     case STOCK:
                         List<Medicine> meds = medicineService.findByYear(start);
                         List<StockDTO> stock = new ArrayList<>();
-                        for (Medicine medicine: meds) {
+                        for (Medicine medicine : meds) {
                             stock.add(new StockDTO(medicine.getId(), medicine.getName(), medicine.getQuantity()));
                         }
-                        if(!stock.isEmpty()){
+                        if (!stock.isEmpty()) {
                             return new ResponseEntity<>(stock, HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                         }
                     case SALES:
                         List<Cart> carts = cartService.findByYear(start);
-                        if(!carts.isEmpty()){
+                        if (!carts.isEmpty()) {
                             return new ResponseEntity<>(carts, HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                         }
                     case MEDICINE:
                         List<Medicine> medicines = medicineService.findByYear(start);
-                        if(!medicines.isEmpty()){
+                        if (!medicines.isEmpty()) {
                             return new ResponseEntity<>(medicines, HttpStatus.OK);
                         } else {
                             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -131,10 +138,10 @@ public class ReportController {
     }
 
     @GetMapping("/user-report")
-    public ResponseEntity<?> getUsersReport(@RequestParam("userId") Long id){
+    public ResponseEntity<?> getUsersReport(@RequestParam("userId") Long id) {
         List<Cart> orders = cartService.getAllOrders(id, OrderStatus.PENDING);
 
-        if(!orders.isEmpty()){
+        if (!orders.isEmpty()) {
             return ResponseEntity.ok(orders);
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
